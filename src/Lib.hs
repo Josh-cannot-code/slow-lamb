@@ -14,25 +14,6 @@ import Data.WAVE (
     )
 
 
-
-file :: FilePath
-file = "src/piano2.wav"
-
-out :: FilePath
-out = "src/piano2slow.wav"
-
-iw :: IO WAVE
-iw = getWAVEFile file
-
-iwSamples :: IO WAVESamples
-iwSamples = fmap waveSamples iw
-
-printSamples :: WAVESamples -> IO ()
-printSamples = mapM_ print
-
-printIwSamples :: IO ()
-printIwSamples = printSamples =<< iwSamples
-
 halfSpeed :: WAVESamples -> WAVESamples
 halfSpeed samples = slowHelper samples []
     where 
@@ -46,21 +27,6 @@ halfSpeed samples = slowHelper samples []
         avg2 :: [WAVESample] -> [WAVESample] -> [WAVESample]
         avg2 = zipWith (\ x y -> (x `div` 2) + (y `div` 2)) 
 
-processedIw :: IO WAVESamples
-processedIw = fmap halfSpeed iwSamples
-
-printProcessedIw :: IO ()
-printProcessedIw = printSamples . take 5 =<< processedIw
-            
-writeProcessedIw :: IO ()
-writeProcessedIw = do 
-    s <- processedIw
-    h <- fmap waveHeader iw
-    let outWave = WAVE {
-            waveHeader = h,
-            waveSamples = s
-        }
-    putWAVEFile out outWave
 
 writeSamples :: IO WAVEHeader -> IO WAVESamples -> FilePath -> IO ()
 writeSamples header samples path = do 
@@ -79,7 +45,3 @@ slowDownFile input = writeSamples header samples
         wave = getWAVEFile input  
         header = fmap waveHeader wave
         samples = halfSpeed <$> fmap waveSamples wave
-    
-
-    
-
