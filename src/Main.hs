@@ -1,5 +1,12 @@
-import qualified Data.WAVE as W
-import Data.WAVE (WAVESamples)
+import Data.WAVE (
+        WAVESamples,
+        WAVESample, 
+        WAVE (WAVE),
+        getWAVEFile,
+        putWAVEFile,
+        waveHeader,
+        waveSamples
+    )
 
 file :: FilePath
 file = "src/piano2.wav"
@@ -7,39 +14,43 @@ file = "src/piano2.wav"
 out :: FilePath
 out = "src/piano2slow.wav"
 
-iw :: IO W.WAVE
-iw = W.getWAVEFile file
+iw :: IO WAVE
+iw = getWAVEFile file
 
-iwSamples :: IO W.WAVESamples
-iwSamples = fmap W.waveSamples iw
+iwSamples :: IO WAVESamples
+iwSamples = fmap waveSamples iw
 
-printSamples :: W.WAVESamples -> IO ()
+printSamples :: WAVESamples -> IO ()
 printSamples = mapM_ print
 
 printIwSamples :: IO ()
 printIwSamples = printSamples =<< iwSamples
 
-slowSamples :: WAVESamples -> WAVESamples
-slowSamples samples = slowHelper samples []
+halfSpeed :: WAVESamples -> WAVESamples
+halfSpeed samples = slowHelper samples []
     where 
         slowHelper :: WAVESamples -> WAVESamples -> WAVESamples
         slowHelper s acc = 
             case s of 
             [] -> reverse acc 
-            x:xs -> slowHelper xs (x:x:acc)
+            [x] -> slowHelper [] (x:acc)
+            x:y:xs -> slowHelper (y:xs) (avg2 x y:x:acc)
 
-processedIw :: IO W.WAVESamples
-processedIw = fmap slowSamples iwSamples
+        avg2 :: [WAVESample] -> [WAVESample] -> [WAVESample]
+        avg2 = zipWith (\ x y -> (x `div` 2) + (y `div` 2)) 
+
+processedIw :: IO WAVESamples
+processedIw = fmap halfSpeed iwSamples
 
 printProcessedIw :: IO ()
-printProcessedIw = printSamples =<< processedIw
+printProcessedIw = printSamples . take 5 =<< processedIw
             
 writeProcessedIw :: IO ()
 writeProcessedIw = do 
     s <- processedIw
-    h <- fmap W.waveHeader iw
-    let outWave = W.WAVE {
-            W.waveHeader = h,
-            W.waveSamples = s
+    h <- fmap waveHeader iw
+    let outWave = WAVE {
+            waveHeader = h,
+            waveSamples = s
         }
-    W.putWAVEFile out outWave
+    putWAVEFile out outWave
