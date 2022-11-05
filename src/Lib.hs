@@ -1,15 +1,16 @@
 module Lib
-    ( halfSpeed
+    ( halfSpeed,
+      slowDownFile
     ) where
 
 import Data.WAVE (
         WAVESamples,
-        WAVESample, 
+        WAVESample,
         WAVE (WAVE),
         getWAVEFile,
         putWAVEFile,
         waveHeader,
-        waveSamples
+        waveSamples, WAVEHeader
     )
 
 
@@ -60,3 +61,25 @@ writeProcessedIw = do
             waveSamples = s
         }
     putWAVEFile out outWave
+
+writeSamples :: IO WAVEHeader -> IO WAVESamples -> FilePath -> IO ()
+writeSamples header samples path = do 
+    h <- header
+    s <- samples
+    let outWave = WAVE { 
+            waveHeader = h,
+            waveSamples = s 
+        }
+    putWAVEFile path outWave
+
+
+slowDownFile :: FilePath -> FilePath-> IO ()
+slowDownFile input = writeSamples header samples
+    where
+        wave = getWAVEFile input  
+        header = fmap waveHeader wave
+        samples = halfSpeed <$> fmap waveSamples wave
+    
+
+    
+
