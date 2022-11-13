@@ -21,7 +21,8 @@ argParser = Args
         <> help "output file location" )
 
 proccessArgs :: Args -> IO ()
-proccessArgs args = slowDownFile (inputFile args) (outputFile args)
+proccessArgs args = applyEffectToFile (inputFile args) (outputFile args) (delay 20000 . halfSpeed)
+-- proccessArgs args = applyEffectToFile (inputFile args) (outputFile args) identity
 
 main :: IO ()
 main = proccessArgs =<< execParser opts
