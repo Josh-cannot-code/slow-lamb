@@ -21,7 +21,7 @@ argParser = Args
         <> help "output file location" )
 
 proccessArgs :: Args -> IO ()
-proccessArgs args = applyEffectToFile (inputFile args) (outputFile args) (delay 20000 . halfSpeed)
+proccessArgs args = applyEffectToFile (inputFile args) (outputFile args) (delay 10000) 
 -- proccessArgs args = applyEffectToFile (inputFile args) (outputFile args) identity
 
 main :: IO ()
