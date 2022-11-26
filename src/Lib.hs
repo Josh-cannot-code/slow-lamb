@@ -2,6 +2,8 @@ module Lib
     ( halfSpeed,
       applyEffectToFile,
       delay,
+      delay2,
+      delay4,
       identity
     ) where
 
@@ -50,7 +52,19 @@ delay duration samples = helper samples (take duration samples) zerosInit zerosI
         mergeS _ _ = []
 
         zerosInit :: WAVESamples
-        zerosInit = take duration [[0,0] | _ <- [0..]]
+        zerosInit = take duration [[0,0] | _ <- [(0 :: Int)..]]
+
+delay2 :: Int -> Int -> WAVESamples -> WAVESamples
+delay2 duration1 duration2 = delay duration1 . delay duration2
+
+delay4 :: Int -> WAVESamples -> WAVESamples
+delay4 baseDuration = 
+    let 
+        durationDiv3 = baseDuration `div` 3
+        duration3 = durationDiv3 * 2
+        duration4 = durationDiv3 * 4
+    in
+    delay baseDuration . delay durationDiv3 . delay duration3 . delay duration4
 
 
 writeSamples :: IO WAVEHeader -> IO WAVESamples -> FilePath -> IO ()

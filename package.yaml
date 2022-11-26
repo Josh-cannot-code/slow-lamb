@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - WAVE
 - optparse-applicative
+- io-streams
 
 ghc-options:
 - -Wall
